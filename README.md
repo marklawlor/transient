@@ -2,17 +2,15 @@
 
 > This is more a proof of concept and needs more Real World testing
 
-Transient is a library to help manage transient effects (aka side effects) due to state updates. Side effects for state management are an anti-pattern, but they are useful for effect management. Typically this is used to invoke animations, but there are other use-cases as well.
-
-Transient also provides utilties
+Transient is a library to help manage short-lived transient effects due to state updates. A transient effect is a short lived event that is coupled to a user defined action. For example, making a button bounce when click, or playing a sound effect. Transient effects are often implement as side-effects, which can be an anti-pattern for state managerment, are a useful pattern in seperating your business/state logic from your ui transient effects.
 
 ## The pitch
 
 You are a developer for an an online store. When a user clicks "Add Item to Cart", the state is updated with the new item; but also the button which was clicked does a bounce animation and the shopping cart button should also shake.
 
-Traditionally, each button would wrap the `addToCart` handler to trigger their animation and the shopping cart button would respond to the state being updated. This implementation has a logic disconnect, its not clear that the shopping cart button should only animate when `addToCart` is called. What happens if the cart is updated from another function?
+Traditionally, each button would wrap the `addToCart` handler to trigger their animation and the shopping cart button would respond to the state being updated. This implementation has a logic disconnection - its not clear that the shopping cart button should only animate when `addToCart` is called. What happens if the cart is updated from another function? You can "fix" this by adding more information to your state (eg a new action type) or wrap yoru `addToCart` function again!
 
-Transient flips the mental modal around - these effects should be trackable via the function that was invoked, not the state update it performed. When `addToCart` is called, the shopping card button should update and each button should intelligently only animate when their version `addToCart` to called.
+Transient flips this mental modal around - these effects should be trackable via the function that was invoked, not the state update it performed. When `addToCart` is called, the shopping card button should update and each button should intelligently only animate when their version `addToCart` to called.
 
 ## Usage
 
@@ -37,19 +35,19 @@ function MyComponent() {
   )
 }
 
-function MyButton({ update }) {
-  const localUpdate = update.useChild()
+function MyButton({ update: parentUpdate }) {
+  const update = parentUpdate.useChild()
+
+  useTriggerCallback(parentUpdate, () => {
+    // Will be called whenever update is called
+    // from any MyButton
+  })
 
   useTriggerCallback(update, () => {
-    // Will be called whenever update is called
-    // from either child
-  })
-
-  useTriggerCallback(localUpdate () => {
     // Will be called whenever localUpdate is called
-    // only from this child
+    // only from only this MyButton
   })
 
-  return <button onClick={() => localUpdate({ ... })} />
+  return <button onClick={() => update({ ... })} />
 }
 ```
