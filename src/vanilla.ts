@@ -1,8 +1,14 @@
-import { Func, key, SubscriptableFunction } from "./types";
+import { Func, SubscriptableFunction } from "./types";
+
+export const key = Symbol("key");
 
 const listenerMap = new WeakMap<Function, Map<string, Set<Function>>>();
 
-export function makeTransient(userFunction: Function, id = "") {
+export interface Transient extends SubscriptableFunction {
+  child: (id?: string) => Transient;
+}
+
+export function makeTransient(userFunction: Func, id = ""): Transient {
   const fn = Object.assign(
     (...args: unknown[]) => {
       const listeners = listenerMap.get(userFunction);
@@ -25,13 +31,14 @@ export function makeTransient(userFunction: Function, id = "") {
     },
     {
       [key]: id,
-      child() {
+      child(id?: string) {
         return makeTransient(
           fn,
           // We don't need a high precision uid
-          `${fn[key]}_${Date.now().toString(36)}${Math.random()
-            .toString(36)
-            .replace("0.", "")}`
+          id ??
+            `${fn[key]}_${Date.now().toString(36)}${Math.random()
+              .toString(36)
+              .replace("0.", "")}`
         );
       },
       subscribe(callback: Function) {

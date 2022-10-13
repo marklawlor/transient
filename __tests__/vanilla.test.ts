@@ -1,4 +1,4 @@
-import { makeTransient, triggerCallback } from "./vanilla";
+import { makeTransient, triggerCallback } from "../src";
 
 test("triggerCallback", () => {
   const myFunction = jest.fn();

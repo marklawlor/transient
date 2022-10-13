@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useId } from "react";
-import { SubscriptableFunction, Func, key } from "./types";
-import { makeTransient, triggerCallback } from "./vanilla";
+import { SubscriptableFunction, Func } from "./types";
+import { makeTransient, Transient, triggerCallback } from "./vanilla";
 
-export function useTransient(userFunction: Function) {
-  return useMemo(() => {
-    const fn = Object.assign(makeTransient(userFunction), {
-      child() {
-        throw new Error(
-          "child() will have undesired effects in React. Please use useSplit()."
-        );
-      },
-      useChild() {
-        return makeTransient(userFunction, `${fn[key]}_${useId()}`);
-      },
-    });
+export interface ReactTransient extends Transient {
+  useChild: () => ReactTransient;
+}
 
-    return fn;
-  }, [userFunction]);
+export function useTransient(userFunction: Func): ReactTransient {
+  return useMemo(
+    () => makeReactTransient(makeTransient(userFunction)),
+    [userFunction]
+  );
+}
+
+function makeReactTransient(transient: Transient): ReactTransient {
+  return Object.assign(transient, {
+    useChild() {
+      return makeReactTransient(transient.child(useId()));
+    },
+  });
 }
 
 export function useTriggerCallback(fn: SubscriptableFunction, callback: Func) {
-  useEffect(() => {
-    return triggerCallback(fn, callback);
-  }, [fn, callback]);
+  useEffect(() => triggerCallback(fn, callback), [fn, callback]);
 }
