@@ -44,12 +44,12 @@ function MyButton({ update: parentUpdate }) {
   const update = parentUpdate.useChild()
 
   useTriggerCallback(parentUpdate, () => {
-    // Will be called whenever update is called
+    // Will be called whenever parentUpdate is called
     // from any MyButton
   })
 
   useTriggerCallback(update, () => {
-    // Will be called whenever localUpdate is called
+    // Will be called whenever update is called
     // only from only this MyButton
   })
 
