@@ -7,8 +7,11 @@
     "test": "jest"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Mark Lawlor",
+  "license": "MIT",
+  "optionalDependencies": {
+    "react": ">18"
+  },
   "devDependencies": {
     "@testing-library/react": "^13.4.0",
     "@types/jest": "^29.1.2",
