@@ -17,9 +17,14 @@ Transient flips this mental modal around - these effects should be trackable via
 ### React
 
 ```tsx
-function MyComponent() {
-  const store = useMyStateLibrary()
+import { useStateLibrary } from "@your-favorite/state-library"
 
+import { useTransient, useTriggerCallback } from "transient"
+
+function MyComponent() {
+  const store = useStateLibrary()
+
+  // Create a Transient version of the updateState function
   const update = useTransient(store.updateState)
 
   useTriggerCallback(update, () => {
