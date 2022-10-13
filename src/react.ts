@@ -5,12 +5,12 @@ import { makeTransient, triggerCallback } from "./vanilla";
 export function useTransient(userFunction: Function) {
   return useMemo(() => {
     const fn = Object.assign(makeTransient(userFunction), {
-      split() {
+      child() {
         throw new Error(
-          "split() will have undesired effects in React. Please use useSplit()."
+          "child() will have undesired effects in React. Please use useSplit()."
         );
       },
-      useSplit() {
+      useChild() {
         return makeTransient(userFunction, `${fn[key]}_${useId()}`);
       },
     });
